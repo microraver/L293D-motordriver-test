@@ -1,8 +1,5 @@
-# L293D-motordriver-test
-(dual bi-directional variable speed DC motor control) with LCD readout 🤓
-
-//  Motor Driver L293D test 2 motor bi-directional, variable speed
-//  with LCD readout for ArduinoUNO and Sparkfun Serial Enabled LCD
+//  L293D motordriver test 2 motor bi-directional, variable speed
+//  with LCD readout
 
 //  This sketch was written July 16 microraverBUILDS(2018)
 //  with lots of help from the Arduino community.
@@ -19,6 +16,8 @@ SoftwareSerial LCD(12,11); // Arduino SS_RX = pin 12 (unused), Arduino SS_TX = p
 //define the input pins
 const int switchPin1 = 3;
 const int switchPin2 = 6;
+const int switchPin3 = 9;
+const int switchPin4 = 13;
 const int potPin1 = 0;
 const int potPin2 = 1;
 
@@ -67,14 +66,21 @@ pinMode(motor2[i], OUTPUT);
   // blinking cursor toggle on
   LCD.write(0xFE);
   LCD.write(0x0D);
-  LCD.write("RobotArm V1.3: ");
+  LCD.write("L293D driver");
   delay(500);
   // move cursor to beginning of second line
   LCD.write(254);
   LCD.write(192);
-  LCD.write("L293D test");
+  LCD.write("control test");
   
   delay(2500);
+  
+  LCD.write(254);
+  LCD.write(192);
+  LCD.write("FWD-RVS-STP-SPD");
+  
+  delay(2500);
+  
 // blinking cursor toggle off
   LCD.write(0xFE);
   LCD.write(0x0C);
@@ -103,7 +109,9 @@ int speed2 = analogRead(potPin2) / 4;
   LCD.write(205);
   LCD.print(speed2);
 
-if (digitalRead(switchPin1) == HIGH)
+// read direction for MOTOR1
+
+if (digitalRead(switchPin3) == LOW)
 {
     LCD.write(254);
     LCD.write(192);
@@ -116,8 +124,9 @@ else
     LCD.write("REV");
  }
 
- 
-if (digitalRead(switchPin2) == HIGH)
+// read direction for MOTOR2
+
+if (digitalRead(switchPin4) == LOW)
 {
     LCD.write(254);
     LCD.write(201);
@@ -132,13 +141,13 @@ else
  
   delay(500);
 
-//read the value of the switchPin1 and store it in the
-//direction variable.
+//read the value of the switchPin3 and switchPin4 and store it in the
+//direction variable for MOTOR1 and MOTOR2
 //if the value of direction is HIGH drive forward at
 //a speed set by the speed variable, else drive reverse
 //at a speed set by the speed variable.
 
-if (digitalRead(switchPin1) == HIGH)
+if (digitalRead(switchPin3) == LOW)
 {
   forward1(speed1);
 }
@@ -147,7 +156,7 @@ else
  reverse1(speed1);
  }
 
- if (digitalRead(switchPin2) == HIGH)
+ if (digitalRead(switchPin4) == LOW)
 {
   forward2(speed2);
 }
@@ -155,8 +164,32 @@ else
  {
  reverse2(speed2);
  }
+
+// read the value of switchPin1 and switchPin2
+// if the value is LOW stop either motor
+
+if (digitalRead(switchPin1) == LOW)
+{
+  stop1();
+
+    LCD.write(254);
+    LCD.write(192);
+    LCD.write("STP");
+    delay(500);
+    
 }
 
+ if (digitalRead(switchPin2) == LOW)
+{
+  stop2();
+  
+    LCD.write(254);
+    LCD.write(201);
+    LCD.write("STP");
+    delay(500);
+}
+
+}
 
   
 // --------------------------------------------------------------------------- Drive
@@ -215,3 +248,24 @@ digitalWrite(motor2[1], HIGH);
  //write the speed by using the parameter of spd
  analogWrite(PWM2, spd);
  }
+
+ //create a custom function for motor1 that defines stop
+
+void stop1()
+{ 
+//set motor controller pins to stop
+digitalWrite(motor1[0], LOW);
+digitalWrite(motor1[1], LOW);
+
+
+ }
+ 
+void stop2()
+{ 
+//set motor controller pins to stop
+digitalWrite(motor2[0], LOW);
+digitalWrite(motor2[1], LOW);
+
+
+ }
+
